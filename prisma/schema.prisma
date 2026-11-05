@@ -1,0 +1,84 @@
+// =============================================================
+// prisma/schema.prisma
+// منصة سوديا - مخطط قاعدة البيانات (المرحلة الأولى)
+//
+// الحالي: SQLite - للتطوير المحلي السريع بدون سيرفر خارجي
+// للإنتاج: غيّر provider إلى "postgresql" وحدّث DATABASE_URL
+// =============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // للتطوير المحلي: sqlite
+  // للإنتاج على السحابة: استبدل بـ "postgresql"
+  //provider = "sqlite"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================
+// جدول المستخدمين - لإدارة النظام والصلاحيات
+// الأدوار: SUPER_ADMIN | UNIVERSITY_ADMIN | COMPANY_ADMIN
+// =============================================================
+model User {
+  id             Int      @id @default(autoincrement())
+  name           String
+  email          String   @unique
+  passwordHash   String
+  /// الأدوار المقبولة: SUPER_ADMIN | UNIVERSITY_ADMIN | COMPANY_ADMIN
+  role           String   @default("SUPER_ADMIN")
+  /// اسم الجامعة (مطلوب فقط لدور UNIVERSITY_ADMIN)
+  universityName String?
+  createdAt      DateTime @default(now())
+}
+
+// =============================================================
+// جدول طلبات الطلاب
+// يحفظ بيانات الطالب المتقدم للحصول على تدريب
+// =============================================================
+model StudentRegistration {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  email     String   @unique
+  phone     String
+  university String
+  major     String
+  gpa       Float?
+  city      String
+  region    String
+  cvUrl     String?
+  /// مهارات الطالب (نص مفصول بفواصل أو JSON string)
+  skills    String
+  /// الحالة: PENDING | APPROVED | REJECTED
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+
+  /// فهارس لتسريع البحث والفلترة المؤسسية
+  @@index([region, city, status])
+}
+
+// =============================================================
+// جدول طلبات الشركات
+// يحفظ بيانات الشركة الراغبة في استقبال متدربين
+// =============================================================
+model CompanyRegistration {
+  id                    Int      @id @default(autoincrement())
+  companyName           String
+  contactPerson         String
+  officialEmail         String   @unique
+  phone                 String
+  city                  String
+  region                String
+  industry              String
+  expectedTraineesCount Int
+  /// مجالات التدريب المتاحة (نص مفصول بفواصل أو JSON string)
+  trainingFields        String
+  /// الحالة: PENDING | APPROVED | REJECTED
+  status                String   @default("PENDING")
+  createdAt             DateTime @default(now())
+
+  /// فهارس لتسريع البحث والفلترة المؤسسية
+  @@index([region, city, status])
+}

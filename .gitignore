@@ -1,0 +1,23 @@
+# تجاهل ملفات البيئة الحساسة
+.env
+
+# ملفات Node.js
+node_modules/
+
+# ملفات البناء
+dist/
+
+# قاعدة البيانات المحلية (SQLite)
+*.db
+*.db-journal
+
+# ملفات Prisma المولّدة
+prisma/migrations/
+
+# ملفات المحرر
+.vscode/
+.idea/
+
+# ملفات النظام
+.DS_Store
+Thumbs.db
